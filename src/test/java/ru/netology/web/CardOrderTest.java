@@ -30,12 +30,18 @@ class CardOrderTest {
         driver = null;
     }
 
+    private void fillForm(String name, String phone, boolean agreement) {
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys(name);
+        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys(phone);
+        if (agreement) {
+            driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        }
+        driver.findElement(By.cssSelector(".button")).click();
+    }
+
     @Test
     void sendValidValues() {
-        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Дарья Иваненко");
-        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+79030001122");
-        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
-        driver.findElement(By.cssSelector(".button")).click();
+        fillForm("Дарья Иваненко", "+79031110022", true);
         WebElement result = driver.findElement(By.cssSelector("[data-test-id='order-success']"));
         Assertions.assertTrue(result.isDisplayed());
         Assertions.assertEquals("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время.", result.getText().trim());
@@ -43,89 +49,77 @@ class CardOrderTest {
 
     @Test
     void sendInvalidNameInLatin() {
-        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Daria Ivanenko");
-        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+79030001122");
-        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
-        driver.findElement(By.cssSelector(".button")).click();
+        fillForm("Daria Ivanenko", "+79031110022", true);
         WebElement result = driver.findElement(By.cssSelector("[data-test-id='name'] .input__sub"));
         Assertions.assertEquals("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.", result.getText().trim());
     }
 
     @Test
     void sendInvalidNameWithSymbols() {
-        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Дарья! Иваненк@");
-        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+79030001122");
-        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
-        driver.findElement(By.cssSelector(".button")).click();
+        fillForm("Дарья! Ив@ненко", "+79031110022", true);
         WebElement result = driver.findElement(By.cssSelector("[data-test-id='name'] .input__sub"));
         Assertions.assertEquals("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.", result.getText().trim());
     }
 
     @Test
+    void sendFormWithoutName() {
+        fillForm("", "+79031110022", true);
+        WebElement result = driver.findElement(By.cssSelector("[data-test-id='name'] .input__sub"));
+        Assertions.assertEquals("Поле обязательно для заполнения", result.getText().trim());
+    }
+
+    @Test
     void sendInvalidPhoneWithoutPlus() {
-        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Дарья Иваненко");
-        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("79030001122");
-        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
-        driver.findElement(By.cssSelector(".button")).click();
+        fillForm("Дарья Иваненко", "79031110022", true);
         WebElement result = driver.findElement(By.cssSelector("[data-test-id='phone'] .input__sub"));
         Assertions.assertEquals("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.", result.getText().trim());
     }
 
     @Test
-    void sendInvalidPhoneWith10Chars() {
-        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Дарья Иваненко");
-        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+7903000112");
-        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
-        driver.findElement(By.cssSelector(".button")).click();
+    void sendInvalidPhoneWithTenChars() {
+        fillForm("Дарья Иваненко", "+7903110022", true);
         WebElement result = driver.findElement(By.cssSelector("[data-test-id='phone'] .input__sub"));
         Assertions.assertEquals("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.", result.getText().trim());
     }
 
     @Test
-    void sendInvalidPhoneWith12Chars() {
-        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Дарья Иваненко");
-        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+790300011222");
-        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
-        driver.findElement(By.cssSelector(".button")).click();
+    void sendInvalidPhoneWithTwelveChars() {
+        fillForm("Дарья Иваненко", "+790311002222", true);
         WebElement result = driver.findElement(By.cssSelector("[data-test-id='phone'] .input__sub"));
         Assertions.assertEquals("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.", result.getText().trim());
     }
 
     @Test
-    void sendInvalidPhoneWith1Char() {
-        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Дарья Иваненко");
-        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("1");
-        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
-        driver.findElement(By.cssSelector(".button")).click();
+    void sendInvalidPhoneWithOneChar() {
+        fillForm("Дарья Иваненко", "1", true);
         WebElement result = driver.findElement(By.cssSelector("[data-test-id='phone'] .input__sub"));
         Assertions.assertEquals("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.", result.getText().trim());
     }
 
     @Test
-    void sendInvalidPhoneWith2Chars() {
-        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Дарья Иваненко");
-        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("12");
-        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
-        driver.findElement(By.cssSelector(".button")).click();
+    void sendInvalidPhoneWithTwoChars() {
+        fillForm("Дарья Иваненко", "12", true);
         WebElement result = driver.findElement(By.cssSelector("[data-test-id='phone'] .input__sub"));
         Assertions.assertEquals("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.", result.getText().trim());
     }
 
     @Test
     void sendInvalidPhoneWithLetters() {
-        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Дарья Иваненко");
-        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+7903000AB12");
-        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
-        driver.findElement(By.cssSelector(".button")).click();
+        fillForm("Дарья Иваненко", "+790311100AB", true);
         WebElement result = driver.findElement(By.cssSelector("[data-test-id='phone'] .input__sub"));
         Assertions.assertEquals("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.", result.getText().trim());
     }
 
     @Test
+    void sendFormWithoutPhone() {
+        fillForm("Дарья Иваненко", "", true);
+        WebElement result = driver.findElement(By.cssSelector("[data-test-id='phone'] .input__sub"));
+        Assertions.assertEquals("Поле обязательно для заполнения", result.getText().trim());
+    }
+
+    @Test
     void sendWithoutAgreement() {
-        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Дарья Иваненко");
-        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+79030001122");
-        driver.findElement(By.cssSelector(".button")).click();
+        fillForm("Дарья Иваненко", "+79031110022", false);
         WebElement result = driver.findElement(By.cssSelector("label.input_invalid"));
         Assertions.assertTrue(result.isDisplayed());
     }
