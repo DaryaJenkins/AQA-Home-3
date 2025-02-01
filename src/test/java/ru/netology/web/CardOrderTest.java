@@ -62,6 +62,13 @@ class CardOrderTest {
     }
 
     @Test
+    void sendOnlySurname() {
+        fillForm("Дарья", "+79031110022", true);
+        WebElement result = driver.findElement(By.cssSelector("[data-test-id='name'] .input__sub"));
+        Assertions.assertEquals("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.", result.getText().trim());
+    }
+
+    @Test
     void sendFormWithoutName() {
         fillForm("", "+79031110022", true);
         WebElement result = driver.findElement(By.cssSelector("[data-test-id='name'] .input__sub"));
