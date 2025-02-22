@@ -19,7 +19,7 @@ class CardOrderTest {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--no-sandbox");
-        options.addArguments("--headless");
+        //options.addArguments("--headless");
         driver = new ChromeDriver(options);
         driver.get("http://localhost:9999");
     }
@@ -127,7 +127,7 @@ class CardOrderTest {
     @Test
     void sendWithoutAgreement() {
         fillForm("Дарья Иваненко", "+79031110022", false);
-        WebElement result = driver.findElement(By.cssSelector("label.input_invalid"));
+        WebElement result = driver.findElement(By.cssSelector("[data-test-id='agreement']"));
         Assertions.assertTrue(result.isDisplayed());
     }
 }
